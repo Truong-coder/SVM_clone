@@ -15,9 +15,9 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 // import { SvgUri, LocalSvg } from 'react-native-svg';
 
 // import TempIcon from './icons/Icons';
-import Thermometer_adobe_express from './icons/thermometer_adobe_express.svg';
-import Dollar_symbol_adobe_express from './icons/dollar_symbol_adobe_express.svg';
-import Milk_bottle_adobe_express from './icons/milk_bottle_adobe_express.svg';
+// import Thermometer_adobe_express from '../screens/icons/thermometer_adobe_express.svg';
+import Dollar_symbol_adobe_express from '../screens/icons/dollar_symbol_adobe_express.svg';
+// import Milk_bottle_adobe_express from '../screens/icons/milk_bottle_adobe_express.svg';
 
 const data = [
   {
@@ -70,7 +70,7 @@ const data = [
   },
 ];
 
-const MangagementScreen = () => {
+const ManagementScreen = () => {
   const [searchText, setSearchText] = useState('');
   // const [searchResults, setSearchResults] = useState([]);
   // define state variable for selected value
@@ -276,4 +276,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MangagementScreen;
+export default ManagementScreen;

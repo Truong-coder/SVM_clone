@@ -3,11 +3,11 @@ import {View, Text, Image, StyleSheet} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
 import {createStackNavigator} from '@react-navigation/stack';
-import HomeScreen from './HomeScreen';
-import ManagementScreen from './ManagementScreen';
-import UserScreen from './UserScreen';
-import WorkScreen from './WorkScreen';
-import HistoryScreen from './HistoryScreen';
+import HomeScreen from '../screens/HomeScreen';
+import ManagementScreen from '../screens/ManagementScreen';
+import UserScreen from '../screens/UserScreen';
+import WorkScreen from '../screens/WorkScreen';
+import HistoryScreen from '../screens/HistoryScreen';
 import Icon from 'react-native-vector-icons/Entypo';
 import Icon1 from 'react-native-vector-icons/Ionicons';
 import Icon2 from 'react-native-vector-icons/Octicons';
@@ -15,7 +15,7 @@ import Icon3 from 'react-native-vector-icons/FontAwesome5';
 
 import Home from './assests/icons/home.svg';
 // import Svg, {Circle} from 'react-native-svg'; // import shape
-import {SvgUri} from 'react-native-svg';
+// import {SvgUri} from 'react-native-svg';
 
 const Tab = createMaterialBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -31,19 +31,26 @@ const ManagementScreen1 = () => {
           title: 'Quản Lý Máy',
           headerStyle: {
             backgroundColor: '#00BAB5',
-
           },
           headerTintColor: '#fff',
           // headerTitleStyle: {
           //   fontWeight: 'bold',
           // },
-          headerTitleAlign: 'center', 
+          headerTitleAlign: 'center',
+        }}
+      />
+        <Stack.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          headerShown: false,
         }}
       />
     </Stack.Navigator>
   );
 };
-const Navigation = () => {
+
+const BottomNavigation = () => {
   return (
     <NavigationContainer>
       <Tab.Navigator
@@ -166,4 +173,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
-export default Navigation;
+export default BottomNavigation;

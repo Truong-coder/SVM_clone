@@ -1,6 +1,5 @@
 import React from 'react';
-import {View, Text, StyleSheet, Image, Button} from 'react-native';
-import {TouchableOpacity} from 'react-native-gesture-handler';
+import {View, Text, StyleSheet, Image, Button, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Icon1 from 'react-native-vector-icons/AntDesign';
 import Icon2 from 'react-native-vector-icons/Feather';
@@ -16,7 +15,7 @@ const UserScreen = () => {
         backgroundColor: '#F5F8FB',
       }}>
       <Image
-        source={require('../assests/background.png')}
+        source={require('./assests/background.png')}
         resizeMethod="auto"
         style={{
           justifyContent: 'flex-start',
@@ -29,7 +28,7 @@ const UserScreen = () => {
       />
       {/* <View style={[styles.shadow]}> */}
       <Image
-        source={require('../assests/hyperlogy.png')}
+        source={require('./assests/hyperlogy.png')}
         resizeMethod="auto"
         style={[styles.image, styles.overlay, styles.circle]}
       />
