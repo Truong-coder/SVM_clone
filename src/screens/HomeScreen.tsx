@@ -8,10 +8,9 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
-  StatusBar,
+  FlatList,
 } from 'react-native';
 import Fontisto from 'react-native-vector-icons/Fontisto';
-import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import Materail from 'react-native-vector-icons/MaterialCommunityIcons';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
@@ -20,11 +19,227 @@ import CalendarPicker from 'react-native-calendar-picker';
 import {LineChart} from 'react-native-gifted-charts';
 import {BarChart} from 'react-native-gifted-charts';
 import {PieChart} from 'react-native-gifted-charts';
+import axios from 'axios';
 
-const HomeScreen = ({navigation}, {focused}) => {
+const Items = [
+  {
+    id: 1,
+    name: 'Bánh gạo nướng vị tự nhiên',
+    total: 30,
+    value: 60000,
+    uri: 'https://orion.vn/media/rlentw30/cp12p_sakura-film.png',
+  },
+  {
+    id: 2,
+    name: 'Bánh chocopie',
+    total: 19,
+    value: 95000,
+    uri: 'https://orion.vn/media/rlentw30/cp12p_sakura-film.png',
+  },
+  {
+    id: 3,
+    name: 'Bánh Nabati socola',
+    total: 17,
+    value: 190800,
+    uri: 'https://orion.vn/media/rlentw30/cp12p_sakura-film.png',
+  },
+  {
+    id: 4,
+    name: 'Bánh cốm Custas',
+    total: 12,
+    value: 60000,
+    uri: 'https://orion.vn/media/rlentw30/cp12p_sakura-film.png',
+  },
+  {
+    id: 5,
+    name: 'Bánh trứng Custas',
+    total: 8,
+    value: 40000,
+    uri: 'https://orion.vn/media/rlentw30/cp12p_sakura-film.png',
+  },
+];
+
+const SVM = [
+  {
+    id: 1,
+    name: 'Hyper SVM C22 sảnh VP',
+    location: 'Thành phố Hà Nội',
+    total: 148,
+    value: 1258000,
+  },
+  {
+    id: 2,
+    name: 'Hyper SVM 55 inch',
+    location: 'Thành phố Hà Nội',
+    total: 17,
+    value: 190800,
+  },
+];
+
+// Line chart
+const lineData = [
+  {value: 0},
+  {value: 10, label: '25/02'},
+  {value: 8, label: '26/02'},
+  {value: 58, label: '27/02'},
+  {value: 56, label: '28/02'},
+  {value: 78, label: '01/03'},
+  {value: 74, label: '02/03'},
+  {value: 10, label: '25/02'},
+  {value: 8, label: '26/02'},
+  {value: 58, label: '27/02'},
+  {value: 56, label: '28/02'},
+  {value: 78, label: '01/03'},
+  {value: 74, label: '02/03'},
+];
+const barData = [
+  {
+    value: 5,
+    label: '26/02',
+    frontColor: '#87cefa',
+    topLabelComponent: () => <Text style={styles.topLabel}>5</Text>,
+  },
+  {
+    value: 35,
+    label: '27/02',
+    frontColor: '#87cefa',
+    topLabelComponent: () => <Text style={styles.topLabel}>35</Text>,
+  },
+  {
+    value: 14,
+    label: '28/02',
+    frontColor: '#87cefa',
+    topLabelComponent: () => <Text style={styles.topLabel}>14</Text>,
+  },
+  {
+    value: 18,
+    label: '01/03',
+    frontColor: '#87cefa',
+    topLabelComponent: () => <Text style={styles.topLabel}>18</Text>,
+  },
+  {
+    value: 25,
+    label: '02/03',
+    frontColor: '#87cefa',
+    borderWidth: 3,
+    borderColor: 'blue',
+    topLabelComponent: () => <Text style={styles.topLabel}>25</Text>,
+  },
+  {
+    value: 25,
+    label: '02/03',
+    frontColor: '#87cefa',
+    borderWidth: 3,
+    borderColor: 'blue',
+    topLabelComponent: () => <Text style={styles.topLabel}>25</Text>,
+  },
+  {
+    value: 25,
+    label: '02/03',
+    frontColor: '#87cefa',
+    borderWidth: 3,
+    borderColor: 'blue',
+    topLabelComponent: () => <Text style={styles.topLabel}>25</Text>,
+  },
+  {
+    value: 25,
+    label: '02/03',
+    frontColor: '#87cefa',
+    borderWidth: 3,
+    borderColor: 'blue',
+    topLabelComponent: () => <Text style={styles.topLabel}>25</Text>,
+  },
+];
+const pieData1 = [
+  {value: 54, color: '#ADFF9B'},
+  {value: 72, color: '#00ffff'},
+];
+const pieData2 = [{value: 100, color: '#ADFF9B'}];
+const pieData3 = [
+  {value: 116, color: '#ADFF9B'},
+  {value: 16, color: '#00ffff'},
+];
+const pieData4 = [
+  {value: 57, color: '#ADFF9B'},
+  {value: 29, color: '#4A90E2'},
+  {value: 1, color: '#FF4C54'},
+  {value: 13, color: '#F5A623'},
+];
+
+
+// const GetData = async () => {
+//   axios
+//     .request(options)
+//     .then(function (response) {
+//       setData(response.data);
+//       // setMovieTitles(response.data);
+//     })
+//     .catch(function (error) {
+//       console.error(error);
+//     });
+// };
+
+const HomeScreen = ({navigation}) => {
   const [date, setDate] = useState('7 Ngày Trước');
   const [selectedStartDate, setSelectedStartDate] = useState(null);
   const [selectedEndDate, setSelectedEndDate] = useState(null);
+  // state for changing data list
+  const [selectedItems, setSelectedItems] = useState(Items.slice(0, 5));
+  const [activeButton, setActiveButton] = useState('Bán Chạy');
+  const [activeButton2, setActiveButton2] = useState('Cash');
+  const [activeButton3, setActiveButton3] = useState('SVM_best_seller');
+  const [activeButton4, setActiveButton4] = useState('Revenue');
+  // const [activeButton3, setActiveButton3] = useState('Bán Chạy');
+
+  const handleButton1Press = () => {
+    setActiveButton('Bán Chạy');
+    setSelectedItems(Items.slice(0, 5));
+  };
+
+  const handleButton2Press = () => {
+    setActiveButton('Bán Kém');
+    setSelectedItems(Items.slice(4));
+  };
+  const handleButton3Press = () => {
+    setActiveButton2('Cash');
+    // setSelectedItems(Items.slice(0, 5));
+  };
+
+  const handleButton4Press = () => {
+    setActiveButton2('MoMo');
+    // setSelectedItems(Items.slice(4));
+  };
+  const handleButton5Press = () => {
+    setActiveButton2('CreditCard');
+    // setSelectedItems(Items.slice(4));
+  };
+  const handleButton6Press = () => {
+    setActiveButton2('VietQR');
+    // setSelectedItems(Items.slice(4));
+  };
+  const handleButton7Press = () => {
+    setActiveButton3('SVM_best_seller');
+    // setSelectedItems(Items.slice(4));
+  };  
+  const handleButton8Press = () => {
+    setActiveButton3('SVM_bad_seller');
+    // setSelectedItems(Items.slice(4));
+  };
+  const handleButton9Press = () => {
+    setActiveButton('Revenue');
+    // setSelectedItems(Items.slice(4));
+  };
+  const handleButton10Press = () => {
+    setActiveButton('Items');
+    // setSelectedItems(Items.slice(4));
+  };
+
+  const [selectedSVM, setSelectedSVM] = useState(SVM);
+  // State for changing text color
+  const [isFocused, setIsFocused] = useState(false);
+
+  const originalText = 'Giao Dịch Thành Công';
+  const truncatedText = originalText.substr(0, 18) + '...';
 
   const onDateChange = (date, type) => {
     //function to handle the date change
@@ -35,100 +250,6 @@ const HomeScreen = ({navigation}, {focused}) => {
       setSelectedStartDate(date);
     }
   };
-
-  // Line chart
-  const lineData = [
-    {value: 0},
-    {value: 10, label: '25/02'},
-    {value: 8, label: '26/02'},
-    {value: 58, label: '27/02'},
-    {value: 56, label: '28/02'},
-    {value: 78, label: '01/03'},
-    {value: 74, label: '02/03'},
-    {value: 10, label: '25/02'},
-    {value: 8, label: '26/02'},
-    {value: 58, label: '27/02'},
-    {value: 56, label: '28/02'},
-    {value: 78, label: '01/03'},
-    {value: 74, label: '02/03'},
-  ];
-  const barData = [
-    {
-      value: 5,
-      label: '26/02',
-      frontColor: '#87cefa',
-      topLabelComponent: () => <Text style={styles.topLabel}>5</Text>,
-    },
-    {
-      value: 35,
-      label: '27/02',
-      frontColor: '#87cefa',
-      topLabelComponent: () => <Text style={styles.topLabel}>35</Text>,
-    },
-    {
-      value: 14,
-      label: '28/02',
-      frontColor: '#87cefa',
-      topLabelComponent: () => <Text style={styles.topLabel}>14</Text>,
-    },
-    {
-      value: 18,
-      label: '01/03',
-      frontColor: '#87cefa',
-      topLabelComponent: () => <Text style={styles.topLabel}>18</Text>,
-    },
-    {
-      value: 25,
-      label: '02/03',
-      frontColor: '#87cefa',
-      borderWidth: 3,
-      borderColor: 'blue',
-      topLabelComponent: () => <Text style={styles.topLabel}>25</Text>,
-    },
-    {
-      value: 25,
-      label: '02/03',
-      frontColor: '#87cefa',
-      borderWidth: 3,
-      borderColor: 'blue',
-      topLabelComponent: () => <Text style={styles.topLabel}>25</Text>,
-    },
-    {
-      value: 25,
-      label: '02/03',
-      frontColor: '#87cefa',
-      borderWidth: 3,
-      borderColor: 'blue',
-      topLabelComponent: () => <Text style={styles.topLabel}>25</Text>,
-    },
-    {
-      value: 25,
-      label: '02/03',
-      frontColor: '#87cefa',
-      borderWidth: 3,
-      borderColor: 'blue',
-      topLabelComponent: () => <Text style={styles.topLabel}>25</Text>,
-    },
-  ];
-  const pieData = [
-    {value: 54, color: '#177AD5'},
-    {value: 72, color: 'lightgray'},
-  ];
-  const pieData1 = [
-    {value: 54, color: 'forestgreen'},
-    {value: 72, color: '#00ffff'},
-  ];
-  const pieData2 = [{value: 100, color: '#7fff00'}];
-  const pieData3 = [
-    {value: 116, color: '#7fff00'},
-    {value: 16, color: '#00ffff'},
-  ];
-  const pieData4 = [
-    {value: 57, color: '#03BD5B'},
-    {value: 29, color: '#4A90E2'},
-    {value: 1, color: '#FF4C54'},
-    {value: 13, color: '#F5A623'},
-  ];
 
   const renderDot = color => {
     return (
@@ -144,10 +265,93 @@ const HomeScreen = ({navigation}, {focused}) => {
     );
   };
 
-  const renderLegend = (text, color) => {
+  // Render items for FlatList Items
+  const renderItems = ({item}) => {
     return (
-      <View>
-        <Text>v</Text>
+      <View
+        style={{
+          flexDirection: 'row',
+          marginTop: 10,
+          marginRight: 30,
+          justifyContent: 'space-between',
+          width: 320,
+        }}>
+        <View>
+          <Image
+            style={styles.tinyLogo}
+            resizeMethod="auto"
+            source={{
+              uri: item.uri,
+            }}
+          />
+        </View>
+        <Text
+          style={{
+            fontSize: 10,
+            color: 'black',
+            fontWeight: 'bold',
+            width: 140,
+          }}>
+          {item.name}
+        </Text>
+        <View style={{flexDirection: 'column'}}>
+          <Text style={{fontSize: 10, color: 'black'}}>SL Bán </Text>
+          <Text style={{fontSize: 10, color: 'black', fontWeight: 'bold'}}>
+            {item.total}
+          </Text>
+        </View>
+        <View style={{flexDirection: 'column'}}>
+          <Text style={{fontSize: 10, color: 'black'}}>Doanh Thu </Text>
+          <Text style={{fontSize: 10, color: 'black', fontWeight: 'bold'}}>
+            {item.value} VND
+          </Text>
+        </View>
+      </View>
+    );
+  };
+
+  const renderSVM = ({item}) => {
+    return (
+      <View
+        style={{
+          flexDirection: 'row',
+          marginTop: 10,
+          marginRight: 30,
+          justifyContent: 'space-between',
+          width: 320,
+        }}>
+        <Image
+          style={styles.tinyLogo}
+          resizeMethod="auto"
+          source={require('./assests/SVM.png')}
+        />
+
+        <View style={{alignItems: 'center', flexDirection: 'row'}}>
+          <View style={{flexDirection: 'column'}}>
+            <Text
+              style={{
+                fontSize: 10,
+                color: 'black',
+                fontWeight: 'bold',
+                width: 140,
+              }}>
+              {item.name}
+            </Text>
+            <Text style={{fontSize: 10, color: 'black'}}>{item.location}</Text>
+          </View>
+          <View style={{flexDirection: 'column'}}>
+            <Text style={{fontSize: 10, color: 'black'}}>SL Bán </Text>
+            <Text style={{fontSize: 10, color: 'black', fontWeight: 'bold'}}>
+              {item.total}
+            </Text>
+          </View>
+          <View style={{flexDirection: 'column'}}>
+            <Text style={{fontSize: 10, color: 'black'}}>Doanh Thu </Text>
+            <Text style={{fontSize: 10, color: 'black', fontWeight: 'bold'}}>
+              {item.value} VND
+            </Text>
+          </View>
+        </View>
       </View>
     );
   };
@@ -156,7 +360,6 @@ const HomeScreen = ({navigation}, {focused}) => {
     <View
       style={{
         flex: 1,
-        justifyContent: 'center',
         alignItems: 'center',
         justifyContent: 'flex-start',
         backgroundColor: '#F5F8FB',
@@ -164,13 +367,7 @@ const HomeScreen = ({navigation}, {focused}) => {
       <Image
         source={require('./assests/userBackground.png')}
         resizeMethod="auto"
-        style={{
-          justifyContent: 'flex-start',
-          width: 400,
-          height: 240,
-          bottom: 15,
-          marginTop: 10,
-        }}
+        style={styles.picture}
       />
       {/* <View style={{position: 'absolute'}}> */}
       <View style={{flexDirection: 'row', position: 'absolute'}}>
@@ -179,13 +376,14 @@ const HomeScreen = ({navigation}, {focused}) => {
           // resizeMethod="auto"
           style={styles.circle}
         />
-        <Text style={{fontSize: 12, color: '#ffffff', top: 30, right: 20}}>
+        <Text style={{fontSize: 12, color: '#ffffff', top: 40, right: 20}}>
           {' '}
           Xin chào !{' '}
         </Text>
         <Text style={styles.text}> Adminn Hyperlogy</Text>
-        {/* <View style ={{backgroundColor:'#ffffff' }}> */}
-        <Fontisto name="bell" size={30} style={styles.icon} />
+        <TouchableOpacity>
+          <Fontisto name="bell" size={25} style={styles.icon} />
+        </TouchableOpacity>
         {/* </View> */}
       </View>
 
@@ -236,9 +434,21 @@ const HomeScreen = ({navigation}, {focused}) => {
           dropdownIconColor="#000000"
           style={styles.picker}>
           {/* <EvilIcons name="calender" size={20}/> */}
-          <Picker.Item label="7 Ngày Trước" value="7 Ngày Trước" />
-          <Picker.Item label="1 Tuần Trước" value="1 Tuần Trước" />
-          <Picker.Item label="1 Tháng Trước" value="1 Tháng Trước" />
+          <Picker.Item
+            label="1 Ngày Trước"
+            value="1 Ngày Trước"
+            style={{fontSize: 13}}
+          />
+          <Picker.Item
+            label="1 Tuần Trước"
+            value="1 Tuần Trước"
+            style={{fontSize: 13}}
+          />
+          <Picker.Item
+            label="1 Tháng Trước"
+            value="1 Tháng Trước"
+            style={{fontSize: 13}}
+          />
         </Picker>
       </View>
 
@@ -364,7 +574,7 @@ const HomeScreen = ({navigation}, {focused}) => {
                 dataPointsColor="#F5A623"
                 startFillColor="#F5A623"
                 startOpacity={0.8}
-                endOpacity={0.3}
+                endOpacity={1}
               />
             </View>
           </View>
@@ -407,8 +617,8 @@ const HomeScreen = ({navigation}, {focused}) => {
             </View>
           </View>
 
-          <View style={{flex: 1, paddingTop: StatusBar.currentHeight}}>
-            {/* Tổng Số Sản Phẩm Bán Ra */}
+          {/* Tổng Số Sản Phẩm Bán Ra */}
+          <View style={{flex: 1}}>
             <View style={styles.chart}>
               <Text style={styles.textChart}> Tổng Số Sản Phẩm Bán Ra </Text>
               <View style={{top: 10, left: 10}}>
@@ -449,19 +659,18 @@ const HomeScreen = ({navigation}, {focused}) => {
                         width: 250,
                         marginRight: 20,
                       }}>
-                      {renderDot('#7fff00')}
+                      {renderDot('#ADFF9B')}
                       <Text
                         style={{
                           color: 'black',
                           fontSize: 10,
-                          fontWeight: 'bold',
                         }}>
                         Nước giải khát:{' '}
                       </Text>
                       <Text
                         style={{
-                          color: 'forestgreen',
-                          fontSize: 12,
+                          color: '#ADFF9B',
+                          fontSize: 10,
                           fontWeight: 'bold',
                           marginLeft: 100,
                         }}>
@@ -484,12 +693,11 @@ const HomeScreen = ({navigation}, {focused}) => {
                       style={{
                         color: 'black',
                         fontSize: 10,
-                        fontWeight: 'bold',
                       }}>
                       Đồ ăn:{' '}
                     </Text>
                     <Text
-                      style={{color: '#00ffff', fontSize: 12, marginLeft: 150}}>
+                      style={{color: '#00ffff', fontSize: 10, marginLeft: 150}}>
                       {' '}
                       72 (57%){' '}
                     </Text>
@@ -499,11 +707,11 @@ const HomeScreen = ({navigation}, {focused}) => {
             </View>
           </View>
 
-          <View style={{flex: 1, paddingTop: StatusBar.currentHeight}}>
-            {/* Doanh Thu Theo Khu Vực */}
+          {/* Doanh Thu Theo Khu Vực */}
+          <View style={{flex: 1}}>
             <View style={styles.chart}>
               <Text style={styles.textChart}> Doanh Thu Theo Khu Vực </Text>
-              <View style={{left: 20}}>
+              <View style={{left: 10}}>
                 <PieChart
                   radius={120}
                   showTextBackground
@@ -517,41 +725,76 @@ const HomeScreen = ({navigation}, {focused}) => {
                   alignItems: 'center',
                   width: 250,
                   marginBottom: 10,
-                  marginRight: 50,
+                  marginRight: 40,
                 }}>
-                {renderDot('forestgreen')}
-                <Text
-                  style={{color: 'black', fontSize: 10, fontWeight: 'bold'}}>
+                {renderDot('#ADFF9B')}
+                <Text style={{color: 'black', fontSize: 10}}>
                   Thành phố Hà Nội:{' '}
                 </Text>
                 <Text
-                  style={{color: 'forestgreen', fontSize: 10, marginLeft: 40}}>
+                  style={{
+                    color: '#ADFF9B',
+                    fontSize: 10,
+                    fontWeight: 'bold',
+                    marginLeft: 40,
+                  }}>
                   {' '}
                   732.000VND (100%){' '}
                 </Text>
               </View>
-              <View style={{flexDirection:'row'}}>
-                <TouchableOpacity>
-                    <Text style={{color:"black", fontSize:12}}> Tiền Mặt </Text>
+              <View style={styles.touchable}>
+                <TouchableOpacity onPress={handleButton3Press}>
+                  <Text
+                    style={{
+                      fontWeight: activeButton2 === 'Cash' ? 'bold' : '100',
+                      color: activeButton2 === 'Cash' ? 'red' : 'gray',
+                      fontSize: 10,
+                    }}>
+                    Tiền Mặt
+                  </Text>
                 </TouchableOpacity>
-                <TouchableOpacity>
-                    <Text style={{color:"black", fontSize:12}}> MoMo </Text>
+                <TouchableOpacity onPress={handleButton4Press}>
+                  <Text
+                    style={{
+                      fontWeight: activeButton2 === 'MoMo' ? 'bold' : '100',
+                      color: activeButton2 === 'MoMo' ? 'red' : 'gray',
+                      fontSize: 10,
+                    }}>
+                    MoMo
+                  </Text>
                 </TouchableOpacity>
-                <TouchableOpacity>
-                    <Text style={{color:"black", fontSize:12}}> Thẻ Ngân Hàng </Text>
+                <TouchableOpacity onPress={handleButton5Press}>
+                  <Text
+                    style={{
+                      fontWeight: activeButton2 === 'CreditCard' ? 'bold' : '100',
+                      color: activeButton2 === 'CreditCard' ? 'red' : 'gray',
+                      fontSize: 10,
+                    }}>
+                    Thẻ Ngân Hàng
+                  </Text>
                 </TouchableOpacity>
-                <TouchableOpacity>
-                    <Text style={{color:"black", fontSize:12}}> VietQR </Text>
+                <TouchableOpacity onPress={handleButton6Press}>
+                  <Text
+                    style={{
+                      fontWeight: activeButton2 === 'VietQR' ? 'bold' : '100',
+                      color: activeButton2 === 'VietQR' ? 'red' : 'gray',
+                      fontSize: 10,
+                    }}>
+                    VietQR
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>
           </View>
 
-          <View style={{flex: 1, paddingTop: StatusBar.currentHeight}}>
-            {/* Tỉ Lệ Giao Dịch */}
+          {/* Tỉ Lệ Giao Dịch */}
+          <View style={{flex: 1}}>
             <View style={styles.chart}>
-              <Text style={styles.textChart}> Tỉ Lệ Giao Dịch </Text>
-              <View style={{top: 30, left: 40}}>
+              <Text style={[styles.textChart, {marginRight: 80}]}>
+                {' '}
+                Tỉ Lệ Giao Dịch{' '}
+              </Text>
+              <View style={{bottom: 10, left: 10}}>
                 <PieChart
                   donut
                   innerRadius={80}
@@ -575,44 +818,302 @@ const HomeScreen = ({navigation}, {focused}) => {
                     );
                   }}
                 />
+              </View>
+
+              <View style={{marginRight: 110}}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'flex-start',
+                  }}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      width: 170,
+                      marginRight: 10,
+                    }}>
+                    {renderDot('#7fff00')}
+                    <Text style={{fontSize: 10, color: 'black'}}>
+                      {' '}
+                      {truncatedText}{' '}
+                    </Text>
+                    <Text
+                      style={{
+                        color: '#7fff00',
+                        fontSize: 10,
+                        fontWeight: 'bold',
+                        marginLeft: 10,
+                      }}>
+                      {' '}
+                      116 (88%){' '}
+                    </Text>
+                  </View>
+                </View>
 
                 <View
                   style={{
-                    width: '100%',
-                    flexDirection: 'column',
-                    justifyContent: 'space-evenly',
-                    marginTop: 20,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    width: 150,
+                    justifyContent: 'space-between',
+                    marginBottom: 10,
+                    marginRight: 20,
                   }}>
-                  {renderLegend('Giao Dịch Thành Công: ', 'lightgreen')}
-                  {renderLegend('Giao Dịch Thất Bại: ', 'orange')}
+                  {renderDot('#00ffff')}
+                  <Text
+                    style={{
+                      color: 'black',
+                      fontSize: 10,
+                      marginRight: 25,
+                    }}>
+                    {' '}
+                    Giao Dịch Thất Bại:{' '}
+                  </Text>
+                  <Text style={{color: '#00ffff', fontSize: 10}}>
+                    {' '}
+                    16 (12%){' '}
+                  </Text>
                 </View>
               </View>
             </View>
           </View>
 
-          <View style={{flex: 1, paddingTop: StatusBar.currentHeight}}>
-            {/* Thống Kê Thanh Toán */}
+          {/* Thống Kê Mặt Hàng */}
+          <View style={styles.chart}>
+            <Text style={styles.textChart}> Thống Kê Mặt Hàng </Text>
+            <View style={{flex: 1, marginBottom: 20}}>
+              <View
+                style={[
+                  styles.touchable,
+                  {flexDirection: 'row', justifyContent: 'space-around'},
+                ]}>
+                <TouchableOpacity onPress={handleButton1Press}>
+                  <Text
+                    style={{
+                      fontWeight: activeButton === 'Bán Chạy' ? 'bold' : '100',
+                      color: activeButton === 'Bán Chạy' ? 'red' : 'gray',
+                      fontSize: 12,
+                    }}>
+                    Bán Chạy
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleButton2Press}>
+                  <Text
+                    style={{
+                      fontWeight: activeButton === 'Bán Kém' ? 'bold' : '100',
+                      color: activeButton === 'Bán Kém' ? 'red' : 'gray',
+                      fontSize: 12,
+                    }}>
+                    Bán Kém
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              <FlatList
+                // ListHeaderComponent={
+                //   <>
+                //     <Text>Take a look at the list of recipes below:</Text>
+                //   </>}
+                data={selectedItems}
+                renderItem={renderItems}
+                keyExtractor={item => item.id.toString()}
+                // ListFooterComponent={
+                //   <Text>Take a look at the list of recipes below:</Text>
+                // }
+              />
+            </View>
+          </View>
+
+          {/* Thống Kê Máy Bán Hàng */}
+
+          <View style={styles.chart}>
+            <Text style={styles.textChart}> Thống Kê Máy Bán Hàng </Text>
+            <View style={{flex: 1}}>
+              <View
+                style={[
+                  styles.touchable,
+                  {flexDirection: 'row', justifyContent: 'space-around'},
+                ]}>
+                <TouchableOpacity onPress={handleButton7Press}>
+                  <Text
+                    style={{
+                      fontWeight: activeButton3 === 'SVM_best_seller' ? 'bold' : '100',
+                      color: activeButton3 === 'SVM_best_seller' ? 'red' : 'gray',
+                      fontSize: 12,
+                    }}>
+                    Bán Chạy
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleButton8Press}>
+                  <Text
+                    style={{
+                      fontWeight: activeButton === 'SVM_bad_seller' ? 'bold' : '100',
+                      color: activeButton === 'SVM_bad_seller' ? 'red' : 'gray',
+                      fontSize: 12,
+                    }}>
+                    Bán Kém
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View>
+                <FlatList
+                  data={SVM}
+                  renderItem={renderSVM}
+                  keyExtractor={item => item.id.toString()}
+                />
+              </View>
+            </View>
+          </View>
+
+          {/* Thống Kê Thanh Toán */}
+          <View style={{flex: 1}}>
             <View style={styles.chart}>
               <Text style={styles.textChart}> Thống Kê Thanh Toán </Text>
-              <View style={{top: 30, left: 10}}>
+              <View style={{ left: 10}}>
                 <PieChart
-                  radius={150}
+                  radius={110}
                   showTextBackground
                   textBackgroundRadius={26}
                   data={pieData4}
                 />
+              </View>
+
+              <View
+                style={{
+                  flexDirection: 'column',
+                  justifyContent: 'flex-start',
+                  marginRight: 40,
+                }}>
                 <View
                   style={{
-                    width: '100%',
-                    flexDirection: 'column',
-                    justifyContent: 'space-evenly',
-                    marginTop: 20,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    width: 250,
+                    marginRight: 10,
                   }}>
-                  {renderLegend('Tiền mặt:', '#03BD5B')}
-                  {renderLegend('MoMo:', '#4A90E2')}
-                  {renderLegend('VietQR:', '#FF4C54')}
-                  {renderLegend('Thẻ Ngân Hàng:', 'F5A623')}
+                  {renderDot('#ADFF9B')}
+                  <Text style={{fontSize: 10, color: 'black'}}>
+                    {' '}
+                    Tiền Mặt :{' '}
+                  </Text>
+                  <Text
+                    style={{
+                      color: '#ADFF9B',
+                      fontSize: 10,
+                      fontWeight: 'bold',
+                      marginLeft: 90,
+                    }}>
+                    {' '}
+                    833.000 VND (57%){' '}
+                  </Text>
                 </View>
+
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    width: 250,
+                    justifyContent: 'space-between',
+                    marginRight: 20,
+                  }}>
+                  {renderDot('#4A90E2')}
+                  <Text
+                    style={{
+                      color: 'black',
+                      fontSize: 10,
+                      marginRight: 25,
+                    }}>
+                    {' '}
+                    MOMO :{' '}
+                  </Text>
+                  <Text
+                    style={{
+                      color: '#4A90E2',
+                      fontSize: 10,
+                      fontWeight: 'bold',
+                      marginLeft: 75,
+                    }}>
+                    {' '}
+                    413.000 (28%){' '}
+                  </Text>
+                </View>
+
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    width: 250,
+                    marginRight: 10,
+                  }}>
+                  {renderDot('#FF4C54')}
+                  <Text style={{fontSize: 10, color: 'black'}}> VietQR : </Text>
+                  <Text
+                    style={{
+                      color: '#FF4C54',
+                      fontSize: 10,
+                      fontWeight: 'bold',
+                      marginLeft: 100,
+                    }}>
+                    {' '}
+                    20.000 VND (1%){' '}
+                  </Text>
+                </View>
+
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    width: 250,
+                    marginRight: 10,
+                    marginBottom: 10,
+                  }}>
+                  {renderDot('#F5A623')}
+                  <Text style={{fontSize: 10, color: 'black'}}>
+                    {' '}
+                    Thẻ Ngân Hàng :{' '}
+                  </Text>
+                  <Text
+                    style={{
+                      color: '#F5A623',
+                      fontSize: 10,
+                      fontWeight: 'bold',
+                      marginLeft: 50,
+                    }}>
+                    {' '}
+                    182.000 (13%){' '}
+                  </Text>
+                </View>
+              </View>
+              <View
+                style={[
+                  styles.touchable,
+                  {flexDirection: 'row', justifyContent: 'space-around'},
+                ]}>
+                <TouchableOpacity onPress={handleButton9Press}>
+                  <Text
+                    style={{
+                      fontWeight: activeButton4 === 'Revenue' ? 'bold' : '100',
+                      color: activeButton4 === 'Revenue' ? 'red' : 'gray',
+                      fontSize: 12,
+                    }}>
+                    Doanh Thu
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleButton10Press}>
+                  <Text
+                    style={{
+                      fontWeight: activeButton4 === 'Items' ? 'bold' : '100',
+                      color: activeButton4 === 'Items' ? 'red' : 'gray',
+                      fontSize: 12,
+                    }}>
+                    Sản Phẩm
+                  </Text>
+                </TouchableOpacity>
               </View>
             </View>
           </View>
@@ -626,10 +1127,10 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: 'white',
     padding: 10,
-    top: 140,
+    top: 120,
     right: 50,
     left: 10,
-    height: 80,
+    height: 70,
     width: 110,
     borderWidth: 1,
     borderRadius: 10,
@@ -660,15 +1161,17 @@ const styles = StyleSheet.create({
     // bottom: 10
   },
   icon: {
-    top: 60,
+    top: 50,
+    left: 30,
   },
   dropdown: {
     borderWidth: 2,
     borderRadius: 10,
     width: 200,
+    height: '7%',
     borderColor: '#000000',
-    margin: 10,
-    marginLeft: 160,
+    marginLeft: 150,
+    marginTop: 0,
   },
   picker: {
     color: '#000000',
@@ -676,7 +1179,7 @@ const styles = StyleSheet.create({
   },
   chart: {
     flex: 1,
-    padding: 20,
+    padding: 10,
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
     justifyContent: 'flex-start',
@@ -692,15 +1195,44 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     color: '#1890FF',
-    padding: 10,
-    right: 30,
-    bottom: 20,
+    padding: 20,
+    right: 50,
+    // bottom: 20,
   },
   topLabel: {
     color: 'blue',
     fontSize: 10,
     marginBottom: 6,
     marginLeft: 5,
+  },
+  touchable: {
+    flexDirection: 'row',
+    borderRadius: 5,
+    justifyContent: 'space-around',
+    width: 320,
+    backgroundColor: '#EBEFF0',
+    padding: 10,
+  },
+  buttonText: {
+    color: 'black',
+    fontSize: 10,
+  },
+  focusedText: {
+    color: 'red',
+  },
+  picture: {
+    justifyContent: 'flex-start',
+    width: 400,
+    height: 200,
+    bottom: 15,
+    marginTop: 10,
+  },
+  tinyLogo: {
+    width: 50,
+    height: 50,
+    padding: 10,
+    backgroundColor: "#EBEFF0",
+    borderRadius: 10,
   },
 });
 

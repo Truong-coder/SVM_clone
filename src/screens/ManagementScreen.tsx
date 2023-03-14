@@ -6,6 +6,7 @@ import {
   TextInput,
   FlatList,
   ImageBackground,
+  Image
 } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -31,6 +32,7 @@ const data = [
     totaItem: 145,
     district: 'Quận Cầu Giấy',
     city: 'Thành phố Hà Nội',
+    image:  require('../screens/assests/green.png'),
   },
   {
     id: 2,
@@ -43,6 +45,7 @@ const data = [
     totaItem: 0,
     district: 'Quận Cầu Giấy',
     city: 'Thành phố Hà Nội',
+    image: require('../screens/assests/red2.png'),
   },
   {
     id: 3,
@@ -55,6 +58,7 @@ const data = [
     totaItem: 0,
     district: 'Quận Phú Nhuận',
     city: 'Thành phố Hồ Chí Minh',
+    image: require('../screens/assests/red2.png'),
   },
   {
     id: 4,
@@ -67,6 +71,7 @@ const data = [
     totaItem: 217,
     district: 'Quận Cầu Giấy',
     city: 'Thành phố Hà Nội',
+    image:  require('../screens/assests/green.png'),
   },
 ];
 
@@ -89,7 +94,7 @@ const ManagementScreen = () => {
    * The TextInput component allows searching by name, and the selectedCity state variable
    * and Picker component allows filtering by city.
    */
-  
+
   // HANDLE SEARCH
   // const handleSearch = text => {
   //   setSearchText(text);
@@ -112,11 +117,16 @@ const ManagementScreen = () => {
     return (
       <View style={styles.flatList}>
         <View style={styles.svmIcon}>
-          <Entypo
+          {/* <Entypo
             name="calculator"
             color={item.color}
             size={40}
             style={{transform: [{rotateX: '180deg'}], marginLeft: 10}}
+          /> */}
+          <Image
+            source = {item.image}
+            resizeMethod="auto"
+            // style={styles.picture}
           />
         </View>
 
@@ -261,9 +271,9 @@ const styles = StyleSheet.create({
   svmIcon: {
     backgroundColor: '#ffffff',
     justifyContent: 'center',
-    width: 60,
+    width: 50,
     height: 60,
-    left: 16,
+    left: 10,
     top: 12,
     marginTop: 20,
     borderRadius: 8,
@@ -272,7 +282,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderWidth: 2,
     borderColor: '#ffffff',
+    borderRadius: 10,
     justifyContent: 'flex-start',
+    backgroundColor: '#ffffff',
+    margin: 5,
   },
 });
 

@@ -1,5 +1,12 @@
 import React from 'react';
-import {View, Text, StyleSheet, Image, Button, TouchableOpacity} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  Button,
+  TouchableOpacity,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Icon1 from 'react-native-vector-icons/AntDesign';
 import Icon2 from 'react-native-vector-icons/Feather';
@@ -40,7 +47,7 @@ const UserScreen = () => {
           {' '}
           Adminn Hyperlogy
         </Text>
-        <Text style={{fontSize: 14, color: 'black'}}>
+        <Text style={{fontSize: 12, color: 'black'}}>
           {' '}
           hieult3105@gmail.com{' '}
         </Text>
@@ -55,8 +62,7 @@ const UserScreen = () => {
             <Icon
               name="edit"
               color="black"
-              size={30}
-              style={{marginBottom: 0}}
+              size={25}
             />
             <Text style={styles.text}> Chỉnh Sửa Thông Tin </Text>
           </TouchableOpacity>
@@ -66,15 +72,14 @@ const UserScreen = () => {
             <Icon1
               name="earth"
               color="black"
-              size={30}
-              style={{marginBottom: 0}}
+              size={25}
             />
             <Text style={styles.text}> Ngôn Ngữ: Tiếng Việt </Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.border}>
             {/* onPress={onPressLearnMore} */}
-            <Icon2 name="log-out" color="black" size={30} style={{bottom: 0}} />
+            <Icon2 name="log-out" color="black" size={25} style={{bottom: 0}} />
             <Text style={styles.text}> Đăng Xuất </Text>
           </TouchableOpacity>
         </View>
@@ -135,10 +140,12 @@ const styles = StyleSheet.create({
   border: {
     flexDirection: 'row',
     width: 350,
-    padding: 20,
-    borderWidth: 2,
+    height: 50,
+    padding: 10,
+    borderWidth: 1,
     borderRadius: 5,
     borderColor: '#FFFFFF',
+    backgroundColor: '#FFFFFF',
     margin: 5,
   },
 });
